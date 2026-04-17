@@ -1,41 +1,38 @@
 package com.example;
 
-// Хэрэгтэй сангуудыг импортлох
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Log4j 2 ашиглан лог хөтлөх жишээ програм
- */
 public class App {
     
-    // 1. Logger объектыг үүсгэх (Энэ класс доторх үйл явдлуудыг бүртгэнэ)
     private static final Logger logger = LogManager.getLogger(App.class);
 
     public static void main(String[] args) {
+        logger.info("Програм эхэллээ...");
+
+        // --- 5-р алхам: Мэдээллийг маскалах жишээ ---
+        String sensitiveData = "card-1234-5678";
+        logger.info("Хэрэглэгч системд нэвтэрлээ. ID: {}", mask(sensitiveData));
+
+        // --- Алхам 2 & 2.1: BankAccount туршилт ---
+        BankAccount myAccount = new BankAccount(1000.0);
         
-        // Програм эхэлж байгааг мэдэгдэх (Info түвшин)
-        logger.info("Програм амжилттай ажиллаж эхэллээ.");
+        myAccount.deposit(500.0);    // INFO, DEBUG, TRACE түвшний лог гарна
+        myAccount.deposit(-10.0);    // WARN түвшний лог гарна
+        myAccount.withdraw(2000.0);  // ERROR түвшний лог гарна (үлдэгдэл хүрэхгүй)
+        myAccount.simulateFatalError(); // FATAL түвшний лог гарна
 
-        try {
-            int result = divide(10, 2);
-            // Үр дүнг бүртгэх
-            logger.debug("Хуваах үйлдлийн үр дүн: {}", result);
-            
-            // Алдаа гаргаж турших (0-д хуваах)
-            logger.info("Одоо 0-д хуваах үйлдэл хийж алдааг шалгана...");
-            divide(10, 0);
+        // --- Алхам 3: Customer Debug (NullPointerException-ийг шалгах) ---
+        // Имэйл нь null байх үед алдааг хэрхэн барьж буйг шалгана
+        Customer c1 = new Customer("Bat", null); 
+        logger.info("Customer-ийн домэйн: {}", c1.getDomain());
 
-        } catch (ArithmeticException e) {
-            // 2. Алдаа гарсан үед 'error' түвшний лог хөтлөх
-            logger.error("Тоог 0-д хувааж болохгүй: {}", e.getMessage());
-        }
-
-        // Програм дуусах хэсэг
-        logger.warn("Програмын ажиллагаа дуусаж байна.");
+        logger.info("Програм амжилттай ажиллаж дууслаа.");
     }
 
-    public static int divide(int a, int b) {
-        return a / b;
+    // Алхам 5: Нууц мэдээллийг маскалах функц
+    private static String mask(String s) {
+        if (s == null || s.length() < 4) return "***";
+        return s.substring(0, 2) + "***" + s.substring(s.length() - 2);
     }
 }
